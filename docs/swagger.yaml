@@ -1,0 +1,159 @@
+basePath: /
+definitions:
+  api.Error:
+    properties:
+      error:
+        type: string
+    type: object
+  types.Account:
+    properties:
+      accountNumber:
+        type: integer
+      balance:
+        type: number
+      created:
+        type: string
+      ownerID:
+        type: integer
+    type: object
+  types.LoginResponse:
+    properties:
+      id:
+        type: integer
+      token:
+        type: string
+    type: object
+  types.UserDto:
+    properties:
+      ID:
+        type: integer
+      lastName:
+        type: string
+      memberSince:
+        type: string
+      name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a sample service for managing bank users and accounts
+  title: Bank API
+  version: "1.0"
+paths:
+  /account/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Fetch an account by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.UserDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Account by ID
+      tags:
+      - account
+    post:
+      consumes:
+      - application/json
+      description: Create an account for user with given ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Account'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create an Account
+      tags:
+      - account
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Used to log in a user
+      parameters:
+      - description: User ID
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: User password
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Login
+      tags:
+      - login
+  /user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Fetch a user by their ID
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Account'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get User by ID
+      tags:
+      - users
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: x-jwt-token
+    type: apiKey
+swagger: "2.0"
