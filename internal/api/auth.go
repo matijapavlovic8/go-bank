@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func withJWTAuth(handlerFunc gin.HandlerFunc, s Store) gin.HandlerFunc {
+func withJWTAuth(handlerFunc gin.HandlerFunc, s Store, adminOnly bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		fmt.Println("calling JWT auth middleware")
 
@@ -25,6 +25,17 @@ func withJWTAuth(handlerFunc gin.HandlerFunc, s Store) gin.HandlerFunc {
 			permissionDenied(c)
 			return
 		}
+		claims := token.Claims.(jwt.MapClaims)
+		if checkIfAdminToken(claims["ownerId"].(float64), s) {
+			handlerFunc(c)
+			return
+		}
+
+		if adminOnly && !checkIfAdminToken(claims["ownerId"].(float64), s) {
+			permissionDenied(c)
+			return
+		}
+
 		userID, err := getIDFromContext(c)
 		if err != nil {
 			permissionDenied(c)
@@ -36,7 +47,6 @@ func withJWTAuth(handlerFunc gin.HandlerFunc, s Store) gin.HandlerFunc {
 			return
 		}
 
-		claims := token.Claims.(jwt.MapClaims)
 		if user.ID != int(claims["ownerId"].(float64)) {
 			permissionDenied(c)
 			return
@@ -77,9 +87,24 @@ func createJWT(user *User) (string, error) {
 // This function extracts the user ID from the Gin context.
 func getIDFromContext(c *gin.Context) (int, error) {
 	idStr := c.Param("id")
+	if idStr == "" {
+		idStr = c.Query("ownerId")
+	}
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return id, fmt.Errorf("invalid ID")
 	}
 	return id, nil
+}
+
+func checkIfAdminToken(id float64, s Store) bool {
+
+	user, err := s.GetUserByID(int(id))
+	if err != nil {
+		return false
+	}
+	if user.Role == AdminRole {
+		return true
+	}
+	return false
 }

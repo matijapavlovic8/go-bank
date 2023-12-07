@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS "User" (
     FirstName text NOT NULL,
     LastName text NOT NULL,
     MemberSince timestamp NOT NULL,
-    EncryptedPassword text NOT NULL
+    EncryptedPassword text NOT NULL,
+    Role text NOT NULL
 );
 -- +migrate StatementBegin
 -- Create the random_int function

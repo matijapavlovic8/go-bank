@@ -10,13 +10,12 @@ import (
 type Store interface {
 	CreateAccount(*Account) error
 	DeleteAccount(int) error
-	UpdateAccountBalance(*Account) error
+	UpdateAccountBalance(*Account, float64) error
 	GetAccounts(int) ([]*Account, error)
-	GetAccountByID(int) (*Account, error)
 	GetAccountByNumber(int) (*Account, error)
+	GetAllAccounts() ([]*Account, error)
 	CreateUser(*User) error
 	DeleteUser(int) error
-	GetUserAccount([]*Account, error)
 	GetUserByID(int) (*User, error)
 	Migrate() error
 }
